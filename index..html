@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Banco de Camelot — Banca Digital</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════════
+   VARIABLES & THEME
+═══════════════════════════════════════════════ */
+:root {
+  --bg:          #F0F2F5;
+  --surface:     #FFFFFF;
+  --surface2:    #F8F9FB;
+  --border:      #E4E8EF;
+  --text:        #0D1117;
+  --text-soft:   #6B7280;
+  --text-muted:  #9CA3AF;
+  --primary:     #0A2463;
+  --primary-mid: #1B4FD8;
+  --primary-light:#3B82F6;
+  --primary-pale: #EFF6FF;
+  --accent:      #06B6D4;
+  --success:     #10B981;
+  --success-pale:#ECFDF5;
+  --danger:      #EF4444;
+  --danger-pale: #FEF2F2;
+  --warning:     #F59E0B;
+  --sidebar-w:   260px;
+  --header-h:    64px;
+  --radius:      14px;
+  --radius-sm:   8px;
+  --shadow:      0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
+  --shadow-lg:   0 8px 32px rgba(0,0,0,.12);
+  --shadow-xl:   0 20px 60px rgba(0,0,0,.18);
+  --transition:  .25s cubic-bezier(.4,0,.2,1);
+}
+[data-theme="dark"] {
+  --bg:          #0D1117;
+  --surface:     #161B22;
+  --surface2:    #1C2333;
+  --border:      #30363D;
+  --text:        #E6EDF3;
+  --text-soft:   #8B949E;
+  --text-muted:  #484F58;
+  --primary-pale:#0D2137;
+  --success-pale:#0A1F14;
+  --danger-pale: #1A0A0A;
+}
+
+/* ═══════════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  transition: background var(--transition), color var(--transition);
+  overflow-x: hidden;
+}
+button { cursor: pointer; font-family: inherit; }
+input, select { font-family: inherit; }
+
+/* ═══════════════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════════════ */
+@keyframes fadeIn    { from { opacity:0 } to { opacity:1 } }
+@keyframes slideUp   { from { opacity:0; transform:translateY(24px) } to { opacity:1; transform:translateY(0) } }
+@keyframes slideDown { from { opacity:0; transform:translateY(-16px) } to { opacity:1; transform:translateY(0) } }
+@keyframes scaleIn   { from { opacity:0; transform:scale(.92) } to { opacity:1; transform:scale(1) } }
+@keyframes float     { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+@keyframes pulse-ring { 0%{transform:scale(.9);opacity:.8} 100%{transform:scale(1.6);opacity:0} }
+@keyframes shimmer   { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
+@keyframes spin      { to{transform:rotate(360deg)} }
+@keyframes gradMove  { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+@keyframes particle  { 0%{transform:translateY(100vh) rotate(0deg);opacity:1} 100%{transform:translateY(-100px) rotate(720deg);opacity:0} }
+@keyframes ripple    { to{transform:scale(4);opacity:0} }
+@keyframes glow      { 0%,100%{box-shadow:0 0 20px rgba(27,79,216,.4)} 50%{box-shadow:0 0 40px rgba(27,79,216,.8)} }
+
+.fade-in    { animation: fadeIn    .4s ease both }
+.slide-up   { animation: slideUp   .45s ease both }
+.scale-in   { animation: scaleIn   .35s cubic-bezier(.34,1.56,.64,1) both }
+
+/* ═══════════════════════════════════════════════
+   ── LOGIN PAGE ──
+═══════════════════════════════════════════════ */
+#login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0A2463 0%, #1B4FD8 50%, #06B6D4 100%);
+  background-size: 300% 300%;
+  animation: gradMove 8s ease infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Partículas de fondo */
+.particles { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+.particle {
+  position: absolute;
+  width: 6px; height: 6px;
+  background: rgba(255,255,255,.15);
+  border-radius: 50%;
+  animation: particle linear infinite;
+}
+
+/* Glassmorphism card */
+.login-card {
+  background: rgba(255,255,255,.08);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 24px;
+  padding: 52px 44px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 32px 80px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.2);
+  position: relative;
+  z-index: 1;
+  animation: scaleIn .5s cubic-bezier(.34,1.56,.64,1) both;
+}
+
+.login-logo {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 36px;
+}
+.login-logo-icon {
+  width: 52px; height: 52px;
+  background: rgba(255,255,255,.2);
+  border: 2px solid rgba(255,255,255,.4);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 800; color: #fff;
+  font-family: 'Manrope', sans-serif;
+  animation: float 3s ease-in-out infinite;
+}
+.login-logo-name { font-size: 18px; font-weight: 700; color: #fff; font-family: 'Manrope',sans-serif; }
+.login-logo-sub  { font-size: 12px; color: rgba(255,255,255,.6); margin-top: 2px; }
+
+.login-title { font-size: 26px; font-weight: 700; color: #fff; font-family:'Manrope',sans-serif; margin-bottom: 6px; }
+.login-sub   { font-size: 14px; color: rgba(255,255,255,.65); margin-bottom: 32px; }
+
+.field { margin-bottom: 18px; position: relative; }
+.field label {
+  display: block; font-size: 12px; font-weight: 600;
+  color: rgba(255,255,255,.75); margin-bottom: 8px;
+  letter-spacing: .6px; text-transform: uppercase;
+}
+.field-wrap { position: relative; }
+.field-icon {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  color: rgba(255,255,255,.5); font-size: 14px;
+}
+.field input {
+  width: 100%;
+  padding: 13px 44px 13px 40px;
+  background: rgba(255,255,255,.1);
+  border: 1.5px solid rgba(255,255,255,.2);
+  border-radius: 10px;
+  font-size: 14px; color: #fff;
+  outline: none;
+  transition: all var(--transition);
+}
+.field input::placeholder { color: rgba(255,255,255,.4); }
+.field input:focus {
+  border-color: rgba(255,255,255,.6);
+  background: rgba(255,255,255,.15);
+  box-shadow: 0 0 0 3px rgba(255,255,255,.1);
+}
+.toggle-pass {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: none;
+  color: rgba(255,255,255,.5); font-size: 14px;
+  transition: color var(--transition);
+}
+.toggle-pass:hover { color: rgba(255,255,255,.9); }
+
+.login-extras {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 24px; font-size: 13px;
+}
+.remember { display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,.75); cursor: pointer; }
+.remember input[type="checkbox"] { accent-color: var(--accent); width: 15px; height: 15px; }
+.forgot-link { color: rgba(255,255,255,.75); text-decoration: none; transition: color var(--transition); }
+.forgot-link:hover { color: #fff; }
+
+.btn-login {
+  width: 100%; padding: 14px;
+  background: rgba(255,255,255,.95);
+  color: var(--primary);
+  border: none; border-radius: 10px;
+  font-size: 15px; font-weight: 700;
+  letter-spacing: .3px;
+  transition: all var(--transition);
+  position: relative; overflow: hidden;
+}
+.btn-login:hover {
+  background: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(0,0,0,.2);
+}
+.btn-login:active { transform: translateY(0); }
+.btn-login .spinner {
+  display: none;
+  width: 18px; height: 18px;
+  border: 2px solid var(--primary);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  margin: 0 auto;
+}
+
+.error-box {
+  display: none;
+  background: rgba(239,68,68,.15);
+  border: 1px solid rgba(239,68,68,.4);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-top: 16px;
+  font-size: 13px; color: #FCA5A5;
+  display: none; align-items: center; gap: 8px;
+}
+
+.telegram-help {
+  display: none;
+  margin-top: 14px;
+  background: rgba(6,182,212,.15);
+  border: 1px solid rgba(6,182,212,.35);
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 13px; color: rgba(255,255,255,.85);
+  text-align: center;
+}
+.telegram-help a {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin-top: 10px;
+  background: #229ED9;
+  color: white; text-decoration: none;
+  padding: 9px 18px; border-radius: 8px;
+  font-weight: 600; font-size: 13px;
+  transition: all var(--transition);
+}
+.telegram-help a:hover { background: #1a8bc4; transform: translateY(-1px); }
+
+/* Ripple effect */
+.ripple-effect {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,.3);
+  transform: scale(0);
+  animation: ripple .5s linear;
+  pointer-events: none;
+  width: 60px; height: 60px;
+  margin-left: -30px; margin-top: -30px;
+}
+
+/* ═══════════════════════════════════════════════
+   ── DASHBOARD ──
+═══════════════════════════════════════════════ */
+#dashboard-page { display: none; min-height: 100vh; }
+
+/* SIDEBAR */
+.sidebar {
+  position: fixed; left: 0; top: 0; bottom: 0;
+  width: var(--sidebar-w);
+  background: var(--primary);
+  display: flex; flex-direction: column;
+  z-index: 100;
+  transition: transform var(--transition);
+  overflow: hidden;
+}
+.sidebar::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(27,79,216,.3) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.sidebar-logo {
+  display: flex; align-items: center; gap: 12px;
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+}
+.sidebar-logo-icon {
+  width: 40px; height: 40px;
+  background: rgba(255,255,255,.2);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 800; color: #fff;
+  font-family: 'Manrope', sans-serif;
+}
+.sidebar-logo-name { font-size: 15px; font-weight: 700; color: #fff; font-family:'Manrope',sans-serif; }
+.sidebar-logo-sub  { font-size: 10px; color: rgba(255,255,255,.5); }
+
+.sidebar-nav { flex: 1; padding: 16px 12px; overflow-y: auto; }
+.sidebar-section-label {
+  font-size: 10px; font-weight: 600; color: rgba(255,255,255,.35);
+  letter-spacing: 1px; text-transform: uppercase;
+  padding: 12px 8px 6px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 12px;
+  border-radius: 10px;
+  color: rgba(255,255,255,.65);
+  font-size: 13.5px; font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  margin-bottom: 2px;
+  position: relative;
+  border: none; background: none; width: 100%; text-align: left;
+}
+.nav-item i { width: 18px; text-align: center; font-size: 14px; }
+.nav-item:hover { background: rgba(255,255,255,.1); color: #fff; }
+.nav-item.active {
+  background: rgba(255,255,255,.15);
+  color: #fff;
+  font-weight: 600;
+}
+.nav-item.active::before {
+  content: '';
+  position: absolute; left: 0; top: 20%; bottom: 20%;
+  width: 3px; border-radius: 0 3px 3px 0;
+  background: var(--accent);
+}
+.nav-badge {
+  margin-left: auto;
+  background: var(--danger);
+  color: #fff; font-size: 10px; font-weight: 700;
+  padding: 2px 6px; border-radius: 10px;
+}
+
+.sidebar-footer {
+  padding: 16px 12px;
+  border-top: 1px solid rgba(255,255,255,.1);
+}
+.sidebar-user {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.08);
+}
+.sidebar-avatar {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--accent), var(--primary-light));
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: #fff;
+}
+.sidebar-username { font-size: 13px; font-weight: 600; color: #fff; }
+.sidebar-role     { font-size: 11px; color: rgba(255,255,255,.5); }
+.btn-sidebar-logout {
+  margin-left: auto;
+  background: none; border: none;
+  color: rgba(255,255,255,.5); font-size: 15px;
+  transition: color var(--transition);
+}
+.btn-sidebar-logout:hover { color: #fff; }
+
+/* MAIN AREA */
+.main-area {
+  margin-left: var(--sidebar-w);
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+}
+
+/* HEADER */
+.header {
+  height: var(--header-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 28px;
+  gap: 16px;
+  position: sticky; top: 0; z-index: 50;
+  box-shadow: 0 1px 0 var(--border);
+  transition: background var(--transition);
+}
+.header-search {
+  flex: 1; max-width: 320px;
+  position: relative;
+}
+.header-search i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 13px; }
+.header-search input {
+  width: 100%; padding: 9px 14px 9px 36px;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 10px; font-size: 13px; color: var(--text);
+  outline: none; transition: all var(--transition);
+}
+.header-search input::placeholder { color: var(--text-muted); }
+.header-search input:focus { border-color: var(--primary-light); background: var(--surface); box-shadow: 0 0 0 3px rgba(59,130,246,.1); }
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.header-datetime { font-size: 12px; color: var(--text-muted); text-align: right; line-height: 1.4; }
+.header-datetime strong { color: var(--text); font-size: 13px; }
+.header-icon-btn {
+  width: 38px; height: 38px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-soft); font-size: 14px;
+  transition: all var(--transition);
+  position: relative;
+}
+.header-icon-btn:hover { background: var(--primary-pale); color: var(--primary-light); border-color: var(--primary-light); }
+.notif-dot {
+  position: absolute; top: 6px; right: 6px;
+  width: 8px; height: 8px;
+  background: var(--danger); border-radius: 50%;
+  border: 2px solid var(--surface);
+}
+.theme-btn {
+  width: 38px; height: 38px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-soft); font-size: 14px;
+  transition: all var(--transition);
+}
+.theme-btn:hover { background: var(--primary-pale); color: var(--primary-light); }
+.header-avatar {
+  width: 38px; height: 38px;
+  background: linear-gradient(135deg, var(--primary-mid), var(--accent));
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: #fff;
+  border: 2px solid var(--border);
+}
+
+/* CONTENT */
+.content { flex: 1; padding: 28px; overflow-y: auto; }
+
+/* PAGE HEADER */
+.page-head { margin-bottom: 24px; }
+.page-head h1 { font-size: 22px; font-weight: 700; font-family:'Manrope',sans-serif; color: var(--text); }
+.page-head p  { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+.page-head-row { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+
+/* REPORT BUTTON */
+.btn-report {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 20px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 13px; font-weight: 600; color: var(--text);
+  transition: all var(--transition);
+  position: relative; overflow: hidden;
+}
+.btn-report:hover {
+  border-color: var(--primary-light);
+  color: var(--primary-light);
+  background: var(--primary-pale);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+.btn-report i { font-size: 13px; }
+
+/* STATS GRID */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  transition: all var(--transition);
+  position: relative; overflow: hidden;
+  animation: slideUp .4s ease both;
+}
+.stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.stat-card.primary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-mid) 100%);
+  border-color: transparent;
+  color: #fff;
+}
+.stat-card.primary .stat-label { color: rgba(255,255,255,.65); }
+.stat-card.primary .stat-value { color: #fff; }
+.stat-card.primary .stat-sub   { color: rgba(255,255,255,.55); }
+.stat-card.primary .stat-icon-wrap { background: rgba(255,255,255,.15); color: #fff; }
+
+.stat-card::after {
+  content: '';
+  position: absolute; right: -20px; bottom: -20px;
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.04);
+}
+.stat-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+.stat-icon-wrap {
+  width: 44px; height: 44px;
+  background: var(--primary-pale);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: var(--primary-light);
+}
+.stat-delta {
+  font-size: 12px; font-weight: 600;
+  padding: 3px 8px; border-radius: 20px;
+}
+.stat-delta.up   { background: var(--success-pale); color: var(--success); }
+.stat-delta.down { background: var(--danger-pale); color: var(--danger); }
+.stat-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+.stat-value { font-size: 28px; font-weight: 800; color: var(--text); font-family:'Manrope',sans-serif; }
+.stat-sub   { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+/* QUICK ACTIONS */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.quick-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 12px;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  font-size: 13px; font-weight: 600; color: var(--text);
+  transition: all var(--transition);
+  animation: slideUp .4s ease both;
+}
+.quick-btn:hover {
+  border-color: var(--primary-light);
+  color: var(--primary-light);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+  background: var(--primary-pale);
+}
+.quick-icon {
+  width: 46px; height: 46px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+
+/* GRID 2 COLS */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+@media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+
+/* CARD */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  animation: slideUp .45s ease both;
+}
+.card-header {
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card-title { font-size: 14px; font-weight: 700; color: var(--text); font-family:'Manrope',sans-serif; }
+.card-badge {
+  font-size: 11px; font-weight: 600;
+  padding: 3px 10px; border-radius: 20px;
+  background: var(--primary-pale); color: var(--primary-light);
+}
+.card-body { padding: 20px 22px; }
+
+/* CHART */
+.chart-wrap { position: relative; height: 200px; }
+
+/* TABLE */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  padding: 11px 16px;
+  text-align: left; font-size: 11px; font-weight: 700;
+  color: var(--text-muted); text-transform: uppercase;
+  letter-spacing: .6px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+tbody td {
+  padding: 14px 16px;
+  font-size: 13px; color: var(--text);
+  border-bottom: 1px solid var(--border);
+  transition: background var(--transition);
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--surface2); }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 600;
+}
+.badge.green { background: var(--success-pale); color: var(--success); }
+.badge.red   { background: var(--danger-pale); color: var(--danger); }
+.badge.yellow { background: #FFFBEB; color: var(--warning); }
+.badge::before { content:''; width:6px;height:6px;border-radius:50%; background:currentColor; }
+
+.amount-pos { color: var(--success); font-weight: 600; }
+.amount-neg { color: var(--danger); font-weight: 600; }
+
+/* MINI CARD */
+.mini-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 10px;
+  transition: all var(--transition);
+}
+.mini-card:hover { transform: translateX(4px); border-color: var(--primary-light); }
+.mini-icon {
+  width: 40px; height: 40px; flex-shrink: 0;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+.mini-label { font-size: 13px; font-weight: 600; color: var(--text); }
+.mini-sub   { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.mini-amount { margin-left: auto; font-size: 14px; font-weight: 700; }
+
+/* ── CHAT BUBBLE (Telegram) ── */
+.chat-bubble {
+  position: fixed; bottom: 28px; right: 28px;
+  z-index: 9999;
+}
+.chat-pulse {
+  position: absolute; inset: -4px;
+  border-radius: 50%;
+  background: rgba(27,79,216,.4);
+  animation: pulse-ring 2s ease-out infinite;
+}
+.chat-btn {
+  width: 60px; height: 60px;
+  background: linear-gradient(135deg, #229ED9, #1a8bc4);
+  border-radius: 50%; border: none;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 20px rgba(34,158,217,.5);
+  transition: all var(--transition);
+  position: relative; z-index: 1;
+  animation: float 3s ease-in-out infinite;
+}
+.chat-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 32px rgba(34,158,217,.7);
+}
+.chat-btn svg { width: 28px; height: 28px; fill: white; }
+.chat-tooltip {
+  position: absolute; bottom: 70px; right: 0;
+  background: var(--primary);
+  color: white; font-size: 12px; font-weight: 600;
+  padding: 8px 14px; border-radius: 10px;
+  white-space: nowrap;
+  opacity: 0; pointer-events: none;
+  transition: all var(--transition);
+  box-shadow: var(--shadow-lg);
+}
+.chat-tooltip::after {
+  content:''; position:absolute; bottom:-5px; right:22px;
+  border:5px solid transparent; border-bottom:none;
+  border-top-color: var(--primary);
+}
+.chat-bubble:hover .chat-tooltip { opacity:1; transform: translateY(-4px); }
+.chat-badge {
+  position: absolute; top: -2px; right: -2px;
+  width: 18px; height: 18px;
+  background: var(--danger); border-radius: 50%;
+  border: 2px solid var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700; color: white;
+}
+
+/* ── MODAL ── */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.55);
+  backdrop-filter: blur(6px);
+  z-index: 10000;
+  align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.open {
+  display: flex;
+  animation: fadeIn .25s ease both;
+}
+.modal-box {
+  background: var(--surface);
+  border-radius: 20px;
+  padding: 36px;
+  width: 100%; max-width: 460px;
+  position: relative;
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--border);
+  animation: scaleIn .3s cubic-bezier(.34,1.56,.64,1) both;
+}
+.modal-close {
+  position: absolute; top: 18px; right: 20px;
+  background: var(--surface2); border: 1px solid var(--border);
+  width: 32px; height: 32px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--text-muted);
+  transition: all var(--transition);
+}
+.modal-close:hover { background: var(--danger-pale); color: var(--danger); border-color: var(--danger); }
+.modal-icon {
+  width: 52px; height: 52px;
+  background: var(--primary-pale);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; color: var(--primary-light);
+  margin-bottom: 16px;
+}
+.modal-box h3 { font-size: 20px; font-weight: 700; color: var(--text); font-family:'Manrope',sans-serif; margin-bottom: 6px; }
+.modal-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.6; }
+#sendpulse-widget-container { min-height: 60px; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     LOGIN
+══════════════════════════════════════ -->
+<div id="login-page">
+  <div class="particles" id="particles"></div>
+
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">BC</div>
+      <div>
+        <div class="login-logo-name">Banco de Camelot</div>
+        <div class="login-logo-sub">Banca Digital · 2026</div>
+      </div>
+    </div>
+
+    <div class="login-title">Bienvenido de vuelta</div>
+    <div class="login-sub">Ingresa tus credenciales para acceder a tu cuenta</div>
+
+    <div class="field">
+      <label>Usuario</label>
+      <div class="field-wrap">
+        <i class="fa fa-user field-icon"></i>
+        <input type="text" id="user-input" placeholder="Tu usuario bancario" autocomplete="username">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Contraseña</label>
+      <div class="field-wrap">
+        <i class="fa fa-lock field-icon"></i>
+        <input type="password" id="pass-input" placeholder="••••••••" autocomplete="current-password">
+        <button class="toggle-pass" id="toggle-pass" type="button" onclick="togglePassword()">
+          <i class="fa fa-eye" id="eye-icon"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="login-extras">
+      <label class="remember">
+        <input type="checkbox" id="remember-me"> Recordarme
+      </label>
+      <a href="#" class="forgot-link">¿Olvidaste tu contraseña?</a>
+    </div>
+
+    <button class="btn-login" id="btn-login" onclick="tryLogin(event)">
+      <span id="btn-login-text">Iniciar sesión</span>
+      <div class="spinner" id="login-spinner"></div>
+    </button>
+
+    <div class="error-box" id="error-box">
+      <i class="fa fa-triangle-exclamation"></i>
+      <span>Usuario o contraseña incorrectos. Por favor verifica tus datos.</span>
+    </div>
+
+    <div class="telegram-help" id="telegram-help">
+      ¿Tienes problemas para ingresar? Nuestro asistente puede ayudarte.
+      <br>
+      <a href="https://t.me/BancoMovilGrupo3bot" target="_blank">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.17 13.857l-2.945-.918c-.64-.203-.654-.64.136-.954l11.5-4.434c.534-.194 1.001.13.833.67z"/></svg>
+        Contactar soporte en Telegram
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     DASHBOARD
+══════════════════════════════════════ -->
+<div id="dashboard-page">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">BC</div>
+      <div>
+        <div class="sidebar-logo-name">Banco de Camelot</div>
+        <div class="sidebar-logo-sub">Panel de control</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Principal</div>
+      <button class="nav-item active"><i class="fa fa-house"></i> Inicio</button>
+      <button class="nav-item"><i class="fa fa-arrow-right-arrow-left"></i> Transferencias</button>
+      <button class="nav-item"><i class="fa fa-file-invoice-dollar"></i> Pagos</button>
+      <button class="nav-item"><i class="fa fa-clock-rotate-left"></i> Movimientos <span class="nav-badge">6</span></button>
+
+      <div class="sidebar-section-label">Productos</div>
+      <button class="nav-item"><i class="fa fa-credit-card"></i> Tarjetas</button>
+      <button class="nav-item"><i class="fa fa-hand-holding-dollar"></i> Préstamos</button>
+      <button class="nav-item"><i class="fa fa-chart-line"></i> Inversiones</button>
+
+      <div class="sidebar-section-label">Cuenta</div>
+      <button class="nav-item"><i class="fa fa-shield-halved"></i> Seguridad</button>
+      <button class="nav-item"><i class="fa fa-gear"></i> Configuración</button>
+      <button class="nav-item" onclick="openReportModal()"><i class="fa fa-circle-exclamation"></i> Reportar problema</button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar" id="sidebar-avatar">U</div>
+        <div>
+          <div class="sidebar-username" id="sidebar-username">—</div>
+          <div class="sidebar-role">Cliente Premium</div>
+        </div>
+        <button class="btn-sidebar-logout" onclick="logout()" title="Cerrar sesión">
+          <i class="fa fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN AREA -->
+  <div class="main-area">
+
+    <!-- HEADER -->
+    <header class="header">
+      <div class="header-search">
+        <i class="fa fa-magnifying-glass"></i>
+        <input type="text" placeholder="Buscar transacciones, pagos...">
+      </div>
+      <div class="header-right">
+        <div class="header-datetime">
+          <div id="header-time"><strong>--:--</strong></div>
+          <div id="header-date">-- de -- de ----</div>
+        </div>
+        <button class="header-icon-btn" title="Notificaciones">
+          <i class="fa fa-bell"></i>
+          <span class="notif-dot"></span>
+        </button>
+        <button class="theme-btn" onclick="toggleTheme()" title="Cambiar tema">
+          <i class="fa fa-moon" id="theme-icon"></i>
+        </button>
+        <div class="header-avatar" id="header-avatar">U</div>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <main class="content">
+
+      <!-- PAGE HEAD -->
+      <div class="page-head">
+        <div class="page-head-row">
+          <div>
+            <h1>Panel Principal</h1>
+            <p>Resumen financiero de tu cuenta · <span id="welcome-user">—</span></p>
+          </div>
+          <button class="btn-report" onclick="openReportModal()">
+            <i class="fa fa-circle-exclamation"></i> Reportar un problema
+          </button>
+        </div>
+      </div>
+
+      <!-- STATS -->
+      <div class="stats-grid">
+        <div class="stat-card primary">
+          <div class="stat-top">
+            <div class="stat-icon-wrap"><i class="fa fa-wallet"></i></div>
+            <span class="stat-delta up"><i class="fa fa-arrow-up"></i> 12%</span>
+          </div>
+          <div class="stat-label">Saldo disponible</div>
+          <div class="stat-value">$4,820.00</div>
+          <div class="stat-sub">Cuenta de ahorros · ***4521</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top">
+            <div class="stat-icon-wrap"><i class="fa fa-arrow-trend-up"></i></div>
+            <span class="stat-delta up"><i class="fa fa-arrow-up"></i> 8%</span>
+          </div>
+          <div class="stat-label">Último ingreso</div>
+          <div class="stat-value">$1,200.00</div>
+          <div class="stat-sub">14 jun 2026 — Nómina empresa</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top">
+            <div class="stat-icon-wrap"><i class="fa fa-arrow-trend-down"></i></div>
+            <span class="stat-delta down"><i class="fa fa-arrow-down"></i> 3%</span>
+          </div>
+          <div class="stat-label">Último egreso</div>
+          <div class="stat-value">$380.00</div>
+          <div class="stat-sub">12 jun 2026 — Pago servicios</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top">
+            <div class="stat-icon-wrap"><i class="fa fa-receipt"></i></div>
+            <span class="stat-delta up"><i class="fa fa-arrow-up"></i> 2</span>
+          </div>
+          <div class="stat-label">Transacciones este mes</div>
+          <div class="stat-value">24</div>
+          <div class="stat-sub">Junio 2026</div>
+        </div>
+      </div>
+
+      <!-- QUICK ACTIONS -->
+      <div class="quick-actions">
+        <button class="quick-btn">
+          <div class="quick-icon" style="background:#EFF6FF;color:#3B82F6"><i class="fa fa-paper-plane"></i></div>
+          Enviar dinero
+        </button>
+        <button class="quick-btn">
+          <div class="quick-icon" style="background:#F0FDF4;color:#10B981"><i class="fa fa-arrow-down"></i></div>
+          Recibir
+        </button>
+        <button class="quick-btn">
+          <div class="quick-icon" style="background:#FFF7ED;color:#F59E0B"><i class="fa fa-file-invoice"></i></div>
+          Pagar
+        </button>
+        <button class="quick-btn" onclick="openReportModal()">
+          <div class="quick-icon" style="background:#FEF2F2;color:#EF4444"><i class="fa fa-headset"></i></div>
+          Soporte
+        </button>
+      </div>
+
+      <!-- CHART + RECENT -->
+      <div class="grid-2">
+        <!-- Chart -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="fa fa-chart-area" style="color:var(--primary-light);margin-right:8px"></i>Actividad financiera</span>
+            <span class="card-badge">Junio 2026</span>
+          </div>
+          <div class="card-body">
+            <div class="chart-wrap">
+              <canvas id="financeChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent transactions mini -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="fa fa-clock-rotate-left" style="color:var(--primary-light);margin-right:8px"></i>Actividad reciente</span>
+            <span class="card-badge">Últimas 3</span>
+          </div>
+          <div class="card-body">
+            <div class="mini-card">
+              <div class="mini-icon" style="background:#F0FDF4;color:#10B981"><i class="fa fa-building-columns"></i></div>
+              <div><div class="mini-label">Nómina empresa</div><div class="mini-sub">14 jun 2026</div></div>
+              <div class="mini-amount amount-pos">+$1,200</div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-icon" style="background:#FEF2F2;color:#EF4444"><i class="fa fa-bolt"></i></div>
+              <div><div class="mini-label">Pago servicios básicos</div><div class="mini-sub">12 jun 2026</div></div>
+              <div class="mini-amount amount-neg">-$380</div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-icon" style="background:#EFF6FF;color:#3B82F6"><i class="fa fa-user"></i></div>
+              <div><div class="mini-label">Transferencia a Juan P.</div><div class="mini-sub">10 jun 2026</div></div>
+              <div class="mini-amount amount-neg">-$150</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FULL TABLE -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title"><i class="fa fa-table-list" style="color:var(--primary-light);margin-right:8px"></i>Últimos movimientos</span>
+          <span class="card-badge">6 registros</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Descripción</th>
+                <th>Monto</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>14 jun 2026</td><td>Nómina empresa</td><td class="amount-pos">+$1,200.00</td><td><span class="badge green">Completado</span></td></tr>
+              <tr><td>12 jun 2026</td><td>Pago servicios básicos</td><td class="amount-neg">-$380.00</td><td><span class="badge green">Completado</span></td></tr>
+              <tr><td>10 jun 2026</td><td>Transferencia a Juan P.</td><td class="amount-neg">-$150.00</td><td><span class="badge green">Completado</span></td></tr>
+              <tr><td>08 jun 2026</td><td>Pago tarjeta de crédito</td><td class="amount-neg">-$500.00</td><td><span class="badge green">Completado</span></td></tr>
+              <tr><td>05 jun 2026</td><td>Transferencia recibida</td><td class="amount-pos">+$650.00</td><td><span class="badge green">Completado</span></td></tr>
+              <tr><td>02 jun 2026</td><td>Compra en línea</td><td class="amount-neg">-$89.00</td><td><span class="badge red">Rechazado</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div><!-- /main-area -->
+
+  <!-- CHAT BUBBLE (Telegram) -->
+  <div class="chat-bubble">
+    <div class="chat-pulse"></div>
+    <div class="chat-tooltip">¿Necesitas ayuda? Chatea con nosotros</div>
+    <button class="chat-btn" onclick="openChat()">
+      <svg viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.17 13.857l-2.945-.918c-.64-.203-.654-.64.136-.954l11.5-4.434c.534-.194 1.001.13.833.67z"/></svg>
+    </button>
+    <div class="chat-badge">1</div>
+  </div>
+
+</div><!-- /dashboard-page -->
+
+<!-- MODAL SendPulse -->
+<div class="modal-overlay" id="report-modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeReportModal()"><i class="fa fa-xmark"></i></button>
+    <div class="modal-icon"><i class="fa fa-headset"></i></div>
+    <h3>Reportar un problema</h3>
+    <p class="modal-sub">Completa el formulario y nuestro asistente te contactará de inmediato por Telegram.</p>
+    <div id="sendpulse-widget-container">
+      <script src="//fbstore.sendpulse.com/loader.js" data-sp-widget-id="3da6daf2-4ff6-49f8-a61e-bfd3cad06c28" async></script>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════
+   USERS & AUTH (conservado)
+══════════════════════════════════ */
+const USERS = { "admin":"1234", "usuario":"banco123", "camelot":"camelot" };
+let attempts = 0;
+
+/* Partículas login */
+function createParticles() {
+  const container = document.getElementById('particles');
+  for (let i = 0; i < 20; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText = `
+      left:${Math.random()*100}%;
+      width:${4+Math.random()*8}px;
+      height:${4+Math.random()*8}px;
+      animation-duration:${8+Math.random()*12}s;
+      animation-delay:${Math.random()*8}s;
+      opacity:${.1+Math.random()*.3};
+    `;
+    container.appendChild(p);
+  }
+}
+createParticles();
+
+/* Toggle password */
+function togglePassword() {
+  const inp = document.getElementById('pass-input');
+  const icon = document.getElementById('eye-icon');
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    icon.className = 'fa fa-eye-slash';
+  } else {
+    inp.type = 'password';
+    icon.className = 'fa fa-eye';
+  }
+}
+
+/* Ripple effect */
+document.getElementById('btn-login').addEventListener('click', function(e) {
+  const r = document.createElement('span');
+  r.className = 'ripple-effect';
+  r.style.left = e.offsetX + 'px';
+  r.style.top  = e.offsetY + 'px';
+  this.appendChild(r);
+  setTimeout(() => r.remove(), 600);
+});
+
+/* LOGIN (conservada) */
+function tryLogin(e) {
+  const user = document.getElementById('user-input').value.trim();
+  const pass = document.getElementById('pass-input').value.trim();
+  const errorBox = document.getElementById('error-box');
+  const telegramHelp = document.getElementById('telegram-help');
+  const btnText = document.getElementById('btn-login-text');
+  const spinner = document.getElementById('login-spinner');
+
+  btnText.style.display = 'none';
+  spinner.style.display = 'block';
+
+  setTimeout(() => {
+    spinner.style.display = 'none';
+    btnText.style.display = 'block';
+
+    if (USERS[user] && USERS[user] === pass) {
+      attempts = 0;
+      errorBox.style.display = 'none';
+      telegramHelp.style.display = 'none';
+
+      const initials = user.charAt(0).toUpperCase();
+      document.getElementById('username-display') && (document.getElementById('username-display').textContent = user);
+      document.getElementById('sidebar-username').textContent = user;
+      document.getElementById('sidebar-avatar').textContent = initials;
+      document.getElementById('header-avatar').textContent = initials;
+      document.getElementById('welcome-user').textContent = user;
+
+      document.getElementById('login-page').style.cssText = 'display:none';
+      document.getElementById('dashboard-page').style.display = 'block';
+      initChart();
+      updateDateTime();
+    } else {
+      attempts++;
+      errorBox.style.display = 'flex';
+      if (attempts >= 2) telegramHelp.style.display = 'block';
+    }
+  }, 900);
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && document.getElementById('login-page').style.display !== 'none') tryLogin(e);
+});
+
+/* LOGOUT (conservada) */
+function logout() {
+  document.getElementById('dashboard-page').style.display = 'none';
+  document.getElementById('login-page').style.cssText = '';
+  document.getElementById('user-input').value = '';
+  document.getElementById('pass-input').value = '';
+  document.getElementById('error-box').style.display = 'none';
+  document.getElementById('telegram-help').style.display = 'none';
+  attempts = 0;
+}
+
+/* CHAT (conservada) */
+function openChat() { window.open('https://t.me/BancoMovilGrupo3bot', '_blank'); }
+
+/* MODAL (conservada) */
+function openReportModal() {
+  document.getElementById('report-modal').classList.add('open');
+}
+function closeReportModal() {
+  document.getElementById('report-modal').classList.remove('open');
+}
+document.getElementById('report-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeReportModal();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeReportModal();
+});
+
+/* CHART.JS */
+function initChart() {
+  const ctx = document.getElementById('financeChart');
+  if (!ctx) return;
+  if (window._financeChart) window._financeChart.destroy();
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const gridColor = isDark ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.05)';
+  const textColor = isDark ? '#8B949E' : '#9CA3AF';
+  window._financeChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['1 jun','5 jun','8 jun','10 jun','12 jun','14 jun'],
+      datasets: [
+        {
+          label: 'Ingresos',
+          data: [0,650,650,650,650,1850],
+          borderColor: '#10B981', backgroundColor: 'rgba(16,185,129,.1)',
+          fill: true, tension: .4, pointRadius: 4, pointBackgroundColor: '#10B981'
+        },
+        {
+          label: 'Egresos',
+          data: [89,89,589,739,1119,1119],
+          borderColor: '#EF4444', backgroundColor: 'rgba(239,68,68,.08)',
+          fill: true, tension: .4, pointRadius: 4, pointBackgroundColor: '#EF4444'
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: textColor, font: { family:'Inter', size:12 }, boxWidth:10, usePointStyle:true } } },
+      scales: {
+        x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size:11 } } },
+        y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size:11 }, callback: v => '$'+v } }
+      }
+    }
+  });
+}
+
+/* DATETIME */
+function updateDateTime() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const days = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  document.getElementById('header-time').innerHTML = `<strong>${h}:${m}</strong>`;
+  document.getElementById('header-date').textContent = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+  setTimeout(updateDateTime, 30000);
+}
+
+/* THEME */
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('theme-icon').className = isDark ? 'fa fa-moon' : 'fa fa-sun';
+  localStorage.setItem('bc-theme', isDark ? 'light' : 'dark');
+  if (window._financeChart) initChart();
+}
+(function() {
+  const saved = localStorage.getItem('bc-theme');
+  if (saved === 'dark') {
+    document.documentElement.setAttribute('data-theme','dark');
+    setTimeout(() => {
+      const icon = document.getElementById('theme-icon');
+      if (icon) icon.className = 'fa fa-sun';
+    }, 100);
+  }
+})();
+</script>
+
+</body>
+</html>
